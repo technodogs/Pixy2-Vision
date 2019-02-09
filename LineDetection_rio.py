@@ -1,4 +1,5 @@
 import pixy
+import math
 from ctypes import *
 from pixy import *
 import threading
@@ -33,7 +34,9 @@ print("Connected!")
 # pixy2 Line Detection #
 
 pixy.init ()
+print("Initialized Pixy")
 pixy.change_prog ("line")
+print("Changed to line detection mode.")
 
 # Sync time #
 
@@ -63,8 +66,10 @@ frame = 0
 
 while 1:
   line_get_all_features()
+  print("Got line features")
   i_count = line_get_intersections (100, intersections)
   v_count = line_get_vectors (100, vectors)
+  print("Got vectors")
 
   if i_count > 0 or v_count > 0:
     print('frame %3d:' % (frame))
@@ -78,6 +83,7 @@ while 1:
     m_Line_y0pos_list = []
     m_Line_x1pos_list = []
     m_Line_y1pos_list = []
+    m_Line_angle_list = []
     m_Line_width_list = []
     m_Line_length_list = []
     m_Line_flags_list = []
@@ -85,9 +91,9 @@ while 1:
     for index in range (0, i_count):
       print('[INTERSECTION: INDEX=%d ANGLE=%d]' % (intersections[index].m_index, intersections[index].m_angle))
       #SENDTONETWORKTABLES#
-      m_Intsctn_index_list.append(intersections[index].m_Intsctn_index)
-      m_Intsctn_angle_list.append(intersections[index].m_Intsctn_angle)
-      m_Intsctn_frame_list.append(intersections[index].m_Intsctn_frame)
+      m_Intsctn_index_list.append(intersections[index].m_index)
+      m_Intsctn_angle_list.append(intersections[index].m_angle)
+      m_Intsctn_frame_list.append(intersections[index].m_reserved)
         
 
     for index in range (0, v_count):
@@ -95,14 +101,24 @@ while 1:
       #SENDTONETWORKTABLES#
       linewidth = vectors[index].m_x1 - vectors[index].m_x0
       linelength = vectors[index].m_y1 - vectors[index].m_x0
-      m_Line_index_list.append(vectors[index].m_Line_index)
-      m_Line_x0pos_list.append(vectors[index].m_Line_x0pos)
-      m_Line_y0pos_list.append(vectors[index].m_Line_y0pos)
-      m_Line_x1pos_list.append(vectors[index].m_Line_x1pos)
-      m_Line_y1pos_list.append(vectors[index].m_Line_y1pos)
-      m_Line_width_list.append(vectors[index].linewidth)
-      m_Line_length_list.append(vectors[index].linelength)
-      m_Line_flags_list.append(vectors[index].m_Line_flags)
+      #m_Line_index_list.append(vectors[index].m_x0)
+      x0 = vectors[index].m_x0
+      y0 = vectors[index].m_y0
+      x1 = vectors[index].m_x1
+      y1 = vectors[index].m_y1
+      m_Line_x0pos_list.append(x0)
+      m_Line_y0pos_list.append(y0)
+      m_Line_x1pos_list.append(x1)
+      m_Line_y1pos_list.append(y1)
+      if y1 == y0:
+          angle = 0
+      else:
+          angle = math.atan((x1-x0)/(y1-y0)) * (180 / math.pi)
+      print("Angle = " + str(angle))    
+      m_Line_angle_list.append(angle)
+      #m_Line_width_list.append(vectors[index].linewidth)
+      #m_Line_length_list.append(vectors[index].linelength)
+      #m_Line_flags_list.append(vectors[index].m_Line_flags)
 
       #table.putNumber('Line_index', vectors[index].m_index)
       #table.putNumber('Line_x0pos', vectors[index].m_x0)
@@ -114,12 +130,16 @@ while 1:
       #table.putNumber('Line_flags', vectors[index].m_flags)
           
     # table.putNumberArray('signature', m_signature_list )
+    print("Putting values to network tables")
     table.putNumberArray('index' ,m_Line_index_list)
     table.putNumberArray('x0' ,m_Line_x0pos_list)
-    table.putNumberArray('yo' ,m_Line_y0pos_list)
+    table.putNumberArray('y0' ,m_Line_y0pos_list)
     table.putNumberArray('x1' ,m_Line_x1pos_list)
     table.putNumberArray('y1' ,m_Line_y1pos_list)
+    table.putNumberArray('angle' ,m_Line_angle_list)
     table.putNumberArray('width' ,m_Line_width_list)
     table.putNumberArray('length' ,m_Line_length_list)
     table.putNumberArray('flags' ,m_Line_flags_list)
+    print("wrote to network table")
     
+ 
