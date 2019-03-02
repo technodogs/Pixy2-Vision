@@ -64,6 +64,7 @@ frame = 0
 
 # Send data to NetworkTables #
 
+# Run this forever
 while 1:
   line_get_all_features()
   i_count = line_get_intersections (100, intersections)
