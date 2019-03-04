@@ -10,7 +10,7 @@ cond = threading.Condition()
 notified = [False]
 
 def log(logMessage):
-  print("pixy-LineDetection - " + logMessage)
+  print("pixy-LineDetection: " + logMessage)
 
 def connectionListener(connected, info):
     print(info, '; Connected=%s' % connected)

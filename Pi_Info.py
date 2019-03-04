@@ -10,7 +10,7 @@ cond = threading.Condition()
 notified = [False]
 
 def log(logMessage):
-  print("Pi_Info" + logMessage)
+  print("Pi_Info: " + logMessage)
 
 def connectionListener(connected, info):
     print(info, '; Connected=%s' % connected)
