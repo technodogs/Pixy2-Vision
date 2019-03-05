@@ -30,11 +30,17 @@ def getProcessRunning(processName='motion',commandLine=''):
     procs = [ps.Process(x) for x in pids] # get the process objects
     names = [x.name() for x in procs]
     cmdlines = [x.cmdline() for x in procs]
-
+    #import pdb;pdb.set_trace()
     if(commandLine != ''):
         #use the command line
         #probably have to loop through all sub-lists
-        return commandLine in cmdlines
+        for cmd in cmdlines:
+            if isinstance(cmd, list):
+                for cmdstring in cmd:
+                    if commandLine in cmdstring:
+                        return True
+            elif isinstance(cmd, str):
+	        return commandLine in cmdlines
     else:
         #use the process name
         return processName in names
@@ -61,14 +67,18 @@ while True: # This loop should run forever.
         log("Connected!")
         datatable = NetworkTables.getTable('Pi_Data')
         datatable.putString("ip_address", getIPAddress())
-        datatable.putBoolean("pixy_running", getProcessRunning(processName='python', commandLine='lineDetection_rio.py'))
-        datatable.putBoolean("motion_running", getProcessRunning(processName='motion'))
+        isPixyRunning = getProcessRunning(processName='python2', commandLine='LineDetection_rio.py')
+	isMotionRunning = getProcessRunning(processName='python', commandLine='')
+	#import pdb;pdb.set_trace()
+	datatable.putBoolean("pixy_running", isPixyRunning)
+        datatable.putBoolean("motion_running", isMotionRunning)
         datatable.putString('cpu_utilization', getCPUPercent())
         datatable.putString('ram_utilization', getRAMPercent())
 
         #configtable = NetworkTables.getTable('Pi_Config')
         # Use the config table to read things FROM the network tables to configure the pi
 
-    except:
+    except Exception as e:
         log("An ERROR occurred.")
+        log(str(e))
     time.sleep(1) # in either case, only update once per second.
