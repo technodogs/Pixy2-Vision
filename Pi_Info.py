@@ -40,7 +40,7 @@ def getProcessRunning(processName='motion',commandLine=''):
                     if commandLine in cmdstring:
                         return True
             elif isinstance(cmd, str):
-	        return commandLine in cmdlines
+                return commandLine in cmdlines
     else:
         #use the process name
         return processName in names
@@ -68,9 +68,9 @@ while True: # This loop should run forever.
         datatable = NetworkTables.getTable('Pi_Data')
         datatable.putString("ip_address", getIPAddress())
         isPixyRunning = getProcessRunning(processName='python2', commandLine='LineDetection_rio.py')
-	isMotionRunning = getProcessRunning(processName='python', commandLine='')
-	#import pdb;pdb.set_trace()
-	datatable.putBoolean("pixy_running", isPixyRunning)
+        isMotionRunning = getProcessRunning(processName='python', commandLine='')
+        #import pdb;pdb.set_trace()
+        datatable.putBoolean("pixy_running", isPixyRunning)
         datatable.putBoolean("motion_running", isMotionRunning)
         datatable.putString('cpu_utilization', getCPUPercent())
         datatable.putString('ram_utilization', getRAMPercent())
